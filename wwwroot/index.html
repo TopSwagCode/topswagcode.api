@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fetch and Parse Streaming JSON Response</title>
+</head>
+<body>
+
+    <div>
+        <h1>Auth</h1>
+        <button onclick="login()">Login</button>
+        <button onclick="logout()">Logout</button>
+        <button onclick="getClaims()">GetClaims</button>
+        <ul id="claims"></ul>
+    </div>
+    <div>
+        <h1>Streaming weatherforecasts:</h1>
+    <ul id="output"></ul>
+    </div>
+    <script>
+        async function logout(){
+            const url = '/api/auth/logout';
+            await fetch(url);
+        }
+        async function getClaims(){
+            const url = '/api/auth/claims';
+            
+            let response = await fetch(url);
+            let claims = await response.json();
+            
+            console.log(claims);
+            showClaims(claims);
+        }
+
+        async function login(){
+            const url = '/api/auth/login';
+
+            const data = {
+                username: 'johndoe@example.com',
+                password: 'asd!"#'
+            };
+
+            await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Set the appropriate content type
+                },
+                body: JSON.stringify(data) // Convert the data object to a JSON string
+            });
+        }
+        function showClaims(claims){
+            const output = document.getElementById('claims');
+            const listItem = document.createElement('li');
+            listItem.textContent = JSON.stringify(claims);
+            output.appendChild(listItem);
+        }
+        async function fetchData() {
+        const response = await fetch('/api/weatherforecast');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const reader = response.body.getReader();
+        let result = '';
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                text = new TextDecoder().decode(value);
+                result += new TextDecoder().decode(value);
+                
+                try {
+                    var weatherJson = JSON.parse(convertToJson(text));
+                    appendDataToList(weatherJson);
+                    result = '';
+                } catch (e) {
+                    console.log("error");
+                }
+            }
+        } finally {
+            reader.releaseLock();
+        }
+    }
+
+
+    function convertToJson(data){
+        var result = data;
+        if(result[0] === ','){} result = result.substring(1);   
+        if(result[0] === '[') result = result.substring(1);
+        if(result[result.length-1] === ']') result = result.substring(0, str.length - 1);       
+        return result;
+    }
+
+    function appendDataToList(data) {
+        const output = document.getElementById('output');
+        const listItem = document.createElement('li');
+        listItem.textContent = JSON.stringify(data);
+        output.appendChild(listItem);
+    }
+
+    fetchData();
+    </script>
+</body>
+</html>
