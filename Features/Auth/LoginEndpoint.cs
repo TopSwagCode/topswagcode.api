@@ -26,9 +26,9 @@ public class LoginEndpoint : Endpoint<LoginEndpointRequest>
     }
 }
 
-public class Validator : Validator<LoginEndpointRequest>
+public class LoginEndpointValidator : Validator<LoginEndpointRequest>
 {
-    public Validator()
+    public LoginEndpointValidator()
     {
         RuleFor(x => x.Username)
             .NotEmpty()

@@ -1,13 +1,20 @@
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using TopSwagCode.Api;
 using TopSwagCode.Api.Features.Weather;
 
 const string myAllowSpecificOrigins = nameof(myAllowSpecificOrigins);
 
 var bld = WebApplication.CreateBuilder();
+bld.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+});
 bld.Services.AddFastEndpoints()
     .AddCookieAuth(validFor: TimeSpan.FromMinutes(10))
+    .AddJWTBearerAuth("sHG3x5uO2gkx6AkLT5AVSA==\nB071B7C79B8EDA0931E8090B4F901548")
     .AddAuthorization()
     .SwaggerDocument(o =>
     {
@@ -46,13 +53,14 @@ bld.Services.AddCors(options =>
 var app = bld.Build();
 app.UseFileServer();
 app.UseCors(myAllowSpecificOrigins);
-app.UseFastEndpoints(c =>
+app.UseAuthentication()
+    .UseAuthorization()
+    .UseFastEndpoints(c =>
     {
         c.Endpoints.RoutePrefix = "api";
         c.Versioning.Prefix = "v";
         //c.Versioning.DefaultVersion = 1;
     })
-    .UseAuthorization()
     .UseSwaggerGen();
 app.MapHub<WeatherHub>("/weatherHub");
 app.Run();

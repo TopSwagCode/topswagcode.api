@@ -35,9 +35,9 @@ public class UploadEndpointRequest
     public IFormFile? File { get; set; }
 }
 
-public class Validator : Validator<UploadEndpointRequest>
+public class UploadEndpointValidator : Validator<UploadEndpointRequest>
 {
-    public Validator()
+    public UploadEndpointValidator()
     {
         RuleFor(x => x.File)
             .NotNull().DependentRules(() =>

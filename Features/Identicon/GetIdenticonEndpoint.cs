@@ -23,9 +23,9 @@ public class GetIdenticonEndpoint : Endpoint<GetIdenticonEndpointRequest>
     }
 }
 
-public class Validator : Validator<GetIdenticonEndpointRequest>
+public class GetIdenticonEndpointValidator : Validator<GetIdenticonEndpointRequest>
 {
-    public Validator()
+    public GetIdenticonEndpointValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty()

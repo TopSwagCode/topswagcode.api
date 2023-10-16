@@ -1,10 +1,14 @@
-﻿namespace TopSwagCode.Api.Features.Auth;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+namespace TopSwagCode.Api.Features.Auth;
 
 public class ClaimsEndpoint : EndpointWithoutRequest<ClaimsEndpointResponse>
 {
     public override void Configure()
     {
         Get("/auth/claims");
+        AuthSchemes(JwtBearerDefaults.AuthenticationScheme, CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
     public override async Task HandleAsync(CancellationToken ct)
