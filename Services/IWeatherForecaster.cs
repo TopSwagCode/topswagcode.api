@@ -1,4 +1,4 @@
-﻿namespace TopSwagCode.Api.Features.Weather;
+﻿namespace TopSwagCode.Api.Services;
 
 public interface IWeatherForecaster
 {

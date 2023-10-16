@@ -1,8 +1,8 @@
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using TopSwagCode.Api;
-// TODO: Support Versioning
-var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+const string myAllowSpecificOrigins = nameof(myAllowSpecificOrigins);
 
 var bld = WebApplication.CreateBuilder();
 bld.Services.AddFastEndpoints()
@@ -35,7 +35,7 @@ bld.Services.RegisterServicesFromTopSwagCodeApi();
 
 bld.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
+    options.AddPolicy(name: myAllowSpecificOrigins,
         policy  =>
         {
             policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
@@ -44,7 +44,7 @@ bld.Services.AddCors(options =>
 
 var app = bld.Build();
 app.UseFileServer();
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(myAllowSpecificOrigins);
 app.UseFastEndpoints(c =>
     {
         c.Endpoints.RoutePrefix = "api";

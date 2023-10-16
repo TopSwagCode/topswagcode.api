@@ -9,11 +9,6 @@ public class GetIdenticonEndpoint : Endpoint<GetIdenticonEndpointRequest>
     public override void Configure()
     {
         Get("/identicon");
-        Throttle(
-            hitLimit: 5,
-            durationSeconds: 10,
-            headerName: "X-Client-Id" // this is optional
-        );
         AllowAnonymous();
     }
 

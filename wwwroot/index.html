@@ -6,29 +6,70 @@
 <body>
 
     <div>
-        <h1>Auth</h1>
+        <a href="/swagger"><h1>Swagger</h1></a>
+    </div>
+    <div>
+        <h1>Auth
         <button onclick="login()">Login</button>
         <button onclick="logout()">Logout</button>
         <button onclick="getClaims()">GetClaims</button>
-        <ul id="claims"></ul>
+        </h1>
+        <div style="overflow-y:scroll;height:125px;">
+            <ul id="claims"></ul>
+        </div>
     </div>
     <div>
-        <h1>Streaming weatherforecasts:</h1>
-    <ul id="output"></ul>
+        <h1>Identicon <input id="identiconInput" type="text" oninput="updateIdenticon()" /> </h1>
+        <div style="overflow-y:scroll;height:125px;">
+            <img id="identicon" src="/api/identicon?name=topsawgcode&size=100" />
+        </div>
+    </div>
+    <div>
+        <h1>Streaming weatherforecasts <button onclick="streamWeatherforecast()">Start</button></h1>
+        <div style="overflow-y:scroll;height:125px;">
+            <ul id="output"></ul>  
+        </div>
+    </div>
+
+    <div>
+        <h1>SSE weatherforecasts V2 <button onclick="serverSideEventWeatherforecast()">Start</button></h1>
+        <div style="overflow-y:scroll;height:125px;" id="sse-container"></div>
     </div>
     <script>
+        
+        function serverSideEventWeatherforecast(){
+            const sse = new EventSource('/api/weatherforecast/v2');
+            sse.addEventListener('test', (e) => showEvent(e));
+        }
+        
+        function showEvent(event){
+            const sseContainer = document.getElementById("sse-container");
+
+            const weatherForecast = JSON.parse(event.data); // Parse the received data as needed
+            
+            const messageElement = document.createElement("p");
+            messageElement.textContent = event.data;
+            sseContainer.appendChild(messageElement);
+        }
+        function updateIdenticon(){
+            let name = document.getElementById("identiconInput").value;
+            if(name.length >= 3)
+                document.getElementById("identicon").src = "api/identicon?name="+name+"&size=100";
+        }
         async function logout(){
             const url = '/api/auth/logout';
             await fetch(url);
         }
         async function getClaims(){
             const url = '/api/auth/claims';
-            
             let response = await fetch(url);
-            let claims = await response.json();
+            console.log("response", response);
+            if(response.status !== 200){
+                alert("user is not logged in!");
+            }
             
-            console.log(claims);
-            showClaims(claims);
+            let data = await response.json();
+            showClaims(data.claims);
         }
 
         async function login(){
@@ -53,7 +94,7 @@
             listItem.textContent = JSON.stringify(claims);
             output.appendChild(listItem);
         }
-        async function fetchData() {
+        async function streamWeatherforecast() {
         const response = await fetch('/api/weatherforecast');
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -101,8 +142,6 @@
         listItem.textContent = JSON.stringify(data);
         output.appendChild(listItem);
     }
-
-    fetchData();
     </script>
 </body>
 </html>

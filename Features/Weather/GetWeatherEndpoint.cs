@@ -1,4 +1,6 @@
-﻿namespace TopSwagCode.Api.Features.Weather;
+﻿using TopSwagCode.Api.Services;
+
+namespace TopSwagCode.Api.Features.Weather;
 
 public class GetWeatherEndpoint : EndpointWithoutRequest
 {

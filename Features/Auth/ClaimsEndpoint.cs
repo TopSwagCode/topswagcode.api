@@ -9,7 +9,7 @@ public class ClaimsEndpoint : EndpointWithoutRequest<ClaimsEndpointResponse>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var claims = HttpContext.User.Claims.Aggregate(
+        var claims = User.Claims.Aggregate(
             new Dictionary<string, string>(),
             (dict, claim) =>
             {
@@ -17,7 +17,7 @@ public class ClaimsEndpoint : EndpointWithoutRequest<ClaimsEndpointResponse>
                 return dict;
             });
 
-        await SendOkAsync(new ClaimsEndpointResponse(claims));
+        await SendOkAsync(new ClaimsEndpointResponse(claims), ct);
     }
 }
 

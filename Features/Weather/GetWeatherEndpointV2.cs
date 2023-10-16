@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Mime;
 using System.Text;
 using Newtonsoft.Json;
+using TopSwagCode.Api.Services;
 
 namespace TopSwagCode.Api.Features.Weather;
 
@@ -30,10 +31,10 @@ public class GetWeatherEndpointV2 : EndpointWithoutRequest
     
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await SendEventStreamAsync("test", streamWeatherForecastsAsync());
+        await SendEventStreamAsync("test", StreamWeatherForecastsAsync(), ct);
     }
     
-    async IAsyncEnumerable<WeatherForecast> streamWeatherForecastsAsync() // Handle cancellation
+    async IAsyncEnumerable<WeatherForecast> StreamWeatherForecastsAsync() // Handle cancellation
     {
         for (int daysFromToday = 1; daysFromToday <= 50; daysFromToday++)
         {
