@@ -10,15 +10,27 @@ bld.Services.AddFastEndpoints()
     .AddAuthorization()
     .SwaggerDocument(o =>
     {
-        // Generate Api Clients
-        // https://fast-endpoints.com/docs/swagger-support#save-to-disk-with-app-run
+        o.MaxEndpointVersion = 1;
         o.DocumentSettings = s =>
         {
-            s.Title = "My API";
-            s.Version = "v1";
+            s.DocumentName = "Release 1.0";
+            s.Title = "TopSwagCode.API";
+            s.Version = "v1.0";
         };
-        o.EnableJWTBearerAuth = false;
+    })
+    .SwaggerDocument(o =>
+    {
+        o.MaxEndpointVersion = 2;
+        o.DocumentSettings = s =>
+        {
+            s.DocumentName = "Release 2.0";
+            s.Title = "TopSwagCode.API";
+            s.Version = "v2.0";
+        };
     });
+
+
+
 bld.Services.RegisterServicesFromTopSwagCodeApi();
 
 bld.Services.AddCors(options =>
@@ -33,7 +45,12 @@ bld.Services.AddCors(options =>
 var app = bld.Build();
 app.UseFileServer();
 app.UseCors(MyAllowSpecificOrigins);
-app.UseFastEndpoints()
+app.UseFastEndpoints(c =>
+    {
+        c.Endpoints.RoutePrefix = "api";
+        c.Versioning.Prefix = "v";
+        //c.Versioning.DefaultVersion = 1;
+    })
     .UseAuthorization()
     .UseSwaggerGen();
 app.Run();

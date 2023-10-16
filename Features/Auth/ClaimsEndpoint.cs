@@ -4,7 +4,7 @@ public class ClaimsEndpoint : EndpointWithoutRequest<ClaimsEndpointResponse>
 {
     public override void Configure()
     {
-        Get("/api/auth/claims");
+        Get("/auth/claims");
     }
 
     public override async Task HandleAsync(CancellationToken ct)

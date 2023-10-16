@@ -8,7 +8,7 @@ public class GetIdenticonEndpoint : Endpoint<GetIdenticonEndpointRequest>
     
     public override void Configure()
     {
-        Get("/api/identicon");
+        Get("/identicon");
         Throttle(
             hitLimit: 5,
             durationSeconds: 10,

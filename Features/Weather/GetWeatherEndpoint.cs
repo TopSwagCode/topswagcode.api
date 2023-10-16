@@ -11,7 +11,7 @@ public class GetWeatherEndpoint : EndpointWithoutRequest
     
     public override void Configure()
     {
-        Get("/api/weatherforecast");
+        Get("/weatherforecast");
         Throttle(
             hitLimit: 5,
             durationSeconds: 10,
