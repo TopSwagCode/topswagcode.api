@@ -19,6 +19,16 @@
         </div>
     </div>
     <div>
+        <h1>Upload an image</h1>
+        <form id="upload-form">
+            <input type="file" id="file-input" accept=".png" max="512">
+            <button type="submit">Upload</button>
+        </form>
+        <div id="response-container">
+            <img src="https://placehold.co/100x100" id="response-image" style="height: 100px;" alt="Response Image">
+        </div>
+    </div>
+    <div>
         <h1>Identicon <input id="identiconInput" type="text" oninput="updateIdenticon()" /> </h1>
         <div style="overflow-y:scroll;height:125px;">
             <img id="identicon" src="/api/identicon?name=topsawgcode&size=100" />
@@ -142,6 +152,46 @@
         listItem.textContent = JSON.stringify(data);
         output.appendChild(listItem);
     }
+    
+        document.getElementById("upload-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            let fileInput = document.getElementById("file-input");
+            if (fileInput.files.length === 0) {
+                alert("Please select a file to upload.");
+                return;
+            }
+            const maxSize = 1024 * 512;
+            console.log("file",fileInput.files[0]);
+            if (fileInput.files[0].size > maxSize) {
+                alert('File size exceeds the allowed limit (512kb).');
+                return;
+            }
+            if(fileInput.files[0].type !== "image/png"){
+                alert('Only supports png file format.');
+                return;
+            }
+            
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            fetch("api/upload/image", {
+                method: "POST",
+                body: formData,
+            })
+                .then((response) => response.blob())
+                .then((blob) => {
+                    // Create a data URL for the response image
+                    const objectURL = URL.createObjectURL(blob);
+
+                    // Display the response image
+                    const responseImage = document.getElementById("response-image");
+                    responseImage.src = objectURL;
+                })
+                .catch((error) => {
+                    console.error("Error uploading the image:", error);
+                });
+        });
     </script>
 </body>
 </html>
