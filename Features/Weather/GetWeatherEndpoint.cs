@@ -30,7 +30,7 @@ public class GetWeatherEndpoint : EndpointWithoutRequest
     
     async IAsyncEnumerable<WeatherForecast> streamWeatherForecastsAsync()
     {
-        for (int daysFromToday = 1; daysFromToday <= 50; daysFromToday++)
+        for (int daysFromToday = 1; daysFromToday <= 10; daysFromToday++)
         {
             WeatherForecast weatherForecast = await _weatherForecaster.GetWeatherForecastAsync(daysFromToday);
 

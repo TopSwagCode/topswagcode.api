@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>Fetch and Parse Streaming JSON Response</title>
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@7.0.12/dist/browser/signalr.min.js"></script>
 </head>
 <body>
-
     <div>
         <a href="/swagger"><h1>Swagger</h1></a>
     </div>
@@ -35,32 +35,36 @@
         </div>
     </div>
     <div>
-        <h1>Streaming weatherforecasts <button onclick="streamWeatherforecast()">Start</button></h1>
+        <h1>API weatherforecasts <button onclick="streamWeatherforecast()">Start</button></h1>
         <div style="overflow-y:scroll;height:125px;">
             <ul id="output"></ul>  
         </div>
     </div>
 
     <div>
-        <h1>SSE weatherforecasts V2 <button onclick="serverSideEventWeatherforecast()">Start</button></h1>
-        <div style="overflow-y:scroll;height:125px;" id="sse-container"></div>
+        <h1>SSE weatherforecasts<button onclick="serverSideEventWeatherforecast()">Start</button><button onclick="stopServerSideEventWeatherforecast()">Stop</button></h1>
+        <div style="overflow-y:scroll;height:125px;">
+            <ul id="sse-container"></ul>
+        </div>
+    </div>
+
+    <div>
+        <h1>Websockets weatherforecasts <button onclick="broadcastWeather()">Start</button></h1>
+        <div style="overflow-y:scroll;height:125px;">
+            <ul id="websockets"></ul>
+        </div>
     </div>
     <script>
-        
+        let sse;
         function serverSideEventWeatherforecast(){
-            const sse = new EventSource('/api/weatherforecast/v2');
-            sse.addEventListener('test', (e) => showEvent(e));
+            sse = new EventSource('/api/weatherforecast/v2');
+            sse.addEventListener('test', (e) => appendDataToList(JSON.parse(e.data), "sse-container"));
         }
         
-        function showEvent(event){
-            const sseContainer = document.getElementById("sse-container");
-
-            const weatherForecast = JSON.parse(event.data); // Parse the received data as needed
-            
-            const messageElement = document.createElement("p");
-            messageElement.textContent = event.data;
-            sseContainer.appendChild(messageElement);
+        function stopServerSideEventWeatherforecast(){
+            sse.close();
         }
+        
         function updateIdenticon(){
             let name = document.getElementById("identiconInput").value;
             if(name.length >= 3)
@@ -79,7 +83,8 @@
             }
             
             let data = await response.json();
-            showClaims(data.claims);
+            //JSON.stringify(claims)
+            appendDataToList(data.claims, "claims");
         }
 
         async function login(){
@@ -97,12 +102,6 @@
                 },
                 body: JSON.stringify(data) // Convert the data object to a JSON string
             });
-        }
-        function showClaims(claims){
-            const output = document.getElementById('claims');
-            const listItem = document.createElement('li');
-            listItem.textContent = JSON.stringify(claims);
-            output.appendChild(listItem);
         }
         async function streamWeatherforecast() {
         const response = await fetch('/api/weatherforecast');
@@ -126,7 +125,7 @@
                 
                 try {
                     var weatherJson = JSON.parse(convertToJson(text));
-                    appendDataToList(weatherJson);
+                    appendDataToList(weatherJson, "output");
                     result = '';
                 } catch (e) {
                     console.log("error");
@@ -146,8 +145,8 @@
         return result;
     }
 
-    function appendDataToList(data) {
-        const output = document.getElementById('output');
+    function appendDataToList(data, outputId) {
+        const output = document.getElementById(outputId);
         const listItem = document.createElement('li');
         listItem.textContent = JSON.stringify(data);
         output.appendChild(listItem);
@@ -192,6 +191,19 @@
                     console.error("Error uploading the image:", error);
                 });
         });
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/weatherHub").build();
+        connection.start();
+        connection.on("ReceiveWeather", function (weatherJson) {
+            var li = document.createElement("li");
+            appendDataToList(JSON.parse(weatherJson), "websockets");
+        });
+        
+        function broadcastWeather(){
+            connection.invoke("broadcastWeather").catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
     </script>
 </body>
 </html>

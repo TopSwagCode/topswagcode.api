@@ -1,6 +1,7 @@
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using TopSwagCode.Api;
+using TopSwagCode.Api.Features.Weather;
 
 const string myAllowSpecificOrigins = nameof(myAllowSpecificOrigins);
 
@@ -30,7 +31,7 @@ bld.Services.AddFastEndpoints()
     });
 
 
-
+bld.Services.AddSignalR();
 bld.Services.RegisterServicesFromTopSwagCodeApi();
 
 bld.Services.AddCors(options =>
@@ -53,4 +54,5 @@ app.UseFastEndpoints(c =>
     })
     .UseAuthorization()
     .UseSwaggerGen();
+app.MapHub<WeatherHub>("/weatherHub");
 app.Run();
