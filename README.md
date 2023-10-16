@@ -1,7 +1,6 @@
 # topswagcode.api
 
 Todo:
-* Add APIKey authentication / Bearer token
 * Add EF Core or Dapper to Postgres
 * OpenTelemetry.
 * Unit and Integration Tests. (TestContainers??)
