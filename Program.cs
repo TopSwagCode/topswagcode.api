@@ -1,8 +1,15 @@
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using OpenTelemetry.Resources;
 using TopSwagCode.Api;
 using TopSwagCode.Api.Features.Weather;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using FastEndpoints.OpenTelemetry;
+using FastEndpoints.OpenTelemetry.Middleware;
+using OpenTelemetry.Exporter;
+
 
 const string myAllowSpecificOrigins = nameof(myAllowSpecificOrigins);
 
@@ -40,6 +47,30 @@ bld.Services.AddFastEndpoints()
 
 bld.Services.AddSignalR();
 bld.Services.RegisterServicesFromTopSwagCodeApi();
+
+// Configure important OpenTelemetry settings, the console exporter, and instrumentation library
+bld.Services.AddSingleton(TracerProvider.Default.GetTracer("TopSwagCode.Api","serviceVersion"));
+bld.Services.AddOpenTelemetry().WithTracing(b =>
+{
+    b
+        .AddSource("TopSwagCode.Api")
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService(serviceName: "TopSwagCode.Api", serviceVersion: "serviceVersion"))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddFastEndpointsInstrumentation()
+        //.AddJaegerExporter()
+        .AddZipkinExporter()
+        // .AddOtlpExporter(opt =>
+        // {
+        //     opt.Endpoint = new Uri("http://localhost:4317");
+        //     opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+        // });
+        .AddConsoleExporter();
+});
+
+
 
 bld.Services.AddCors(options =>
 {

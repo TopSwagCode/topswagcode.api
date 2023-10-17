@@ -1,9 +1,16 @@
 ﻿using FluentValidation;
+using OpenTelemetry.Trace;
 
 namespace TopSwagCode.Api.Features.File;
 
 public class UploadEndpoint : Endpoint<UploadEndpointRequest>
 {
+    private readonly Tracer _tracer;
+
+    public UploadEndpoint(Tracer tracer)
+    {
+        _tracer = tracer;
+    }
     public override void Configure()
     {
         Post("/upload/image");
@@ -13,10 +20,15 @@ public class UploadEndpoint : Endpoint<UploadEndpointRequest>
 
     public override async Task HandleAsync(UploadEndpointRequest req, CancellationToken ct)
     {
+        using var span = _tracer.StartActiveSpan("Upload-Span");
         if (Files.Count > 0)
         {
             var file = Files[0];
             var length = file.Length;
+
+            span.AddEvent($"Received file: {file.FileName}");
+            span.SetAttribute("filename", file.FileName);
+            span.SetAttribute("contenttype", file.ContentType);
             
             await SendStreamAsync(
                 stream: file.OpenReadStream(),

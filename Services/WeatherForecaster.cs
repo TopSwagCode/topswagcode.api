@@ -1,8 +1,17 @@
-﻿namespace TopSwagCode.Api.Services;
+﻿using OpenTelemetry.Trace;
+
+namespace TopSwagCode.Api.Services;
 
 [RegisterService<IWeatherForecaster>(LifeTime.Scoped)]
 public class WeatherForecaster : IWeatherForecaster
 {
+    private readonly Tracer _tracer;
+
+    public WeatherForecaster(Tracer tracer)
+    {
+        _tracer = tracer;
+    }
+    
     private static readonly string[] SUMMARIES = new[]
     {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -12,6 +21,8 @@ public class WeatherForecaster : IWeatherForecaster
 
     public async Task<WeatherForecast> GetWeatherForecastAsync(int daysFromToday, CancellationToken cancellationToken = default)
     {
+        using var span = _tracer.StartActiveSpan("WeatherForecaster-Span");
+        
         await Task.Delay(100, cancellationToken);
 
         return new WeatherForecast
